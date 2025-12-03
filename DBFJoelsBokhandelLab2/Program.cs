@@ -1,15 +1,29 @@
 ﻿using DBFJoelsBokhandelLab2.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Data.Common;
+using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DBFJoelsBokhandelLab2
 {
-    internal class Program
+    public class Program
     {
+        private static string ConnectionString;
+        private static IConfiguration configuration;
+
         public static void Main(string[] args)
         {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
+            IConfiguration configuration = builder.Build();
+            ConnectionString = configuration.GetConnectionString("BokhandelDatabase");
+
             bool körProgram = true;
 
             while (körProgram)
@@ -57,8 +71,12 @@ namespace DBFJoelsBokhandelLab2
         }
 
         public static void VisaLager() 
-        { 
-            using (var context = new BokhandelContext())
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<BokhandelContext>();
+            optionsBuilder.UseSqlServer(Program.ConnectionString);
+
+            using (var context = new BokhandelContext(optionsBuilder.Options))
+
             {
                 Console.WriteLine("---Lagersaldo per butik---");
 
@@ -87,7 +105,12 @@ namespace DBFJoelsBokhandelLab2
 
         public static void ÖkaLagerSaldo()
         {
-            Console.Clear();
+            var optionsBuilder = new DbContextOptionsBuilder<BokhandelContext>();
+            optionsBuilder.UseSqlServer(Program.ConnectionString);
+
+            using (var context = new BokhandelContext(optionsBuilder.Options))
+
+                Console.Clear();
             Console.WriteLine("-- Lägg till exemplar --");
 
             Console.Write("Ange ButikID: ");
@@ -110,7 +133,7 @@ namespace DBFJoelsBokhandelLab2
             try
             {
 
-                using (var context = new BokhandelContext())
+                using (var context = new BokhandelContext(optionsBuilder.Options))
                 {
                     var lagerPost = context.LagerSaldos
                         .FirstOrDefault(ls => ls.ButikId == butikId && ls.Isbn == isbn);
@@ -146,7 +169,12 @@ namespace DBFJoelsBokhandelLab2
 
         public static void MinskaLagerSaldo()
         {
-            Console.Clear();
+            var optionsBuilder = new DbContextOptionsBuilder<BokhandelContext>();
+            optionsBuilder.UseSqlServer(Program.ConnectionString);
+
+            using (var context = new BokhandelContext(optionsBuilder.Options))
+
+                Console.Clear();
             Console.WriteLine("-- Ta bort exemplar --");
 
             Console.Write("Ange ButikID: ");
@@ -169,7 +197,7 @@ namespace DBFJoelsBokhandelLab2
 
             try
             {
-                using (var context = new BokhandelContext())
+                using (var context = new BokhandelContext(optionsBuilder.Options))
                 {
                     var lagerPost = context.LagerSaldos
                         .FirstOrDefault(ls => ls.ButikId == butikId && ls.Isbn == isbn);

@@ -6,10 +6,6 @@ namespace DBFJoelsBokhandelLab2.Models;
 
 public partial class BokhandelContext : DbContext
 {
-    public BokhandelContext()
-    {
-    }
-
     public BokhandelContext(DbContextOptions<BokhandelContext> options)
         : base(options)
     {
